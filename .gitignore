@@ -1,0 +1,8 @@
+*.ipynb_*
+*.swp
+*.vscode
+*.h5
+*.dat
+*.pyc
+*w11/swe/output/frames/*
+*_old

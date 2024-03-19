@@ -1,0 +1,62 @@
+# First, we need a set of time-step sizes (dt) to test our problem.
+# Now we note that the dts array is a Python list.
+dts = [0.00001,0.0001,0.001,0.01,0.1]
+dts_new = [(10**(n-5)) for n in range(5)]
+print(dts_new)
+
+# Then we want to code a function for the Euler-B method,
+# so that we can reuse the code for each dt.
+def euler_b(xb,vb,dt,Nt):
+    for idx in range(Nt):
+        vb[idx+1] = vb[idx] - dt * xb[idx]
+        xb[idx+1] = xb[idx] + dt * vb[idx+1]
+        
+    energy = 0.5 * xb**2 + 0.5 * vb**2
+    return xb, vb, energy
+
+# Now let's define the number of time steps and
+# an array to store our results.
+err = []
+Nt = 10000
+
+# a for-loop to loop through the dt's
+for dt in dts:
+    # and for each dt, we have to redefine the 
+    # solution arrays and the initial condition.
+    xb = np.zeros((Nt+1))
+    vb = np.zeros((Nt+1))
+    vb[0] = 1.0
+    
+    # Because dt changes, recompute the time
+    t = np.arange(Nt+1)*dt
+
+    # and we also recompute the exact solutions
+    xth = np.sin(t)
+    vth = np.cos(t)
+    eth = 0.5*xth**2 + 0.5*vth**2
+    
+    # we obtain the solution for the 
+    _, _, energy = euler_b(xb,vb,dt,Nt)
+    
+    # to compute the error in the numerical solution,
+    # we use the max. norm.
+    err_in_energy = np.abs(energy - eth).max()
+    
+    # we store the error we computed
+    err.append(err_in_energy)
+    
+# note that both dts and err are Python lists.
+print(type(dts))
+# but let's do something cool...
+print(type(np.log(dts)))
+
+# now we can compute equation (2) above to obtain
+# as estimate for n.
+print(np.log(err) / np.log(dts))
+
+# what does first-order convergence actually means?
+# let's implement our theoretical understanding.
+err_th = [ (10**expn)**1.0 for expn in range(len(dts)) ]
+print(err_th)
+# we can do better...
+err_th = np.array(err_th) * err[0]
